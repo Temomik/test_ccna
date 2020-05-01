@@ -26,17 +26,17 @@ f = open("questions.txt", "w+")
 firstQuestion = True
 questionsNum = 1
 for elem in allText:
-    elem = elem.encode("ascii", errors="ignore").decode()
+    asciiElem = elem.encode("ascii", errors="ignore").decode()
     if elem in questions:
         if not firstQuestion:
             f.write("<next>\n")
         else:
             firstQuestion = False
-        f.write("<question>" + str(questionsNum) + ". " + elem + '\n')
+        f.write("<question>" + str(questionsNum) + ". " + asciiElem + '\n')
         questionsNum += 1
     else :
         if elem in rightAnswers:
-            f.write("<answer>" + elem + '\n')
+            f.write("<answer>" + asciiElem + '\n')
         else:
             if "data:image/" not in elem:
                 if "http" in elem:

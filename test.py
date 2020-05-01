@@ -10,11 +10,27 @@ def nextImage():
 
 
 def handleString(string,count = 40):
-    tmpStr =[]
-    [tmpStr.append(string[i:i+count] + '\n') for i in range(0, len(string), count)]
+    splitted = string.split(" ")
+    buff = 0
     outStr = ""
-    for it in tmpStr:
-        outStr = outStr + str(it)
+    for i in splitted:
+        if buff <= count:
+            outStr += i 
+            outStr += " "
+            buff += len(i)
+        else:
+            outStr += "\n"
+            buff = 0
+
+    # tmpStr =[]
+    # for i in range(0, len(string), count):  
+    #     while i + count < len(string) and string[i+count] != " ":
+    #         i +=1
+    #     tmpStr.append(string[i:i+count] + '\n')
+
+    # outStr = ""
+    # for it in tmpStr:
+    #     outStr = outStr + str(it)
     return outStr
 
 selectArray = []
@@ -48,7 +64,7 @@ def next(event):
             return
         if("<question>" in line):
             questionsLabel.destroy()
-            questionsLabel = tk.Label(root, text=handleString(line,100))
+            questionsLabel = tk.Label(root, text=handleString(line.replace("<question>",""),100))
             questionsLabel.pack(side=tk.TOP)
             continue
         if("<image>" in line):
@@ -59,10 +75,10 @@ def next(event):
             panel.image = img2
             continue
         tmpButton = []
-        newLine = handleString(line.replace('\n',''))
+        handlerLine = handleString(line.replace('\n',''))
         if "<answer>" in line :
             rightArray.append(len(buttons))
-        tmpButton = tk.Button(root , text=newLine, command= lambda num = len(buttons): select(num),fg = "black")
+        tmpButton = tk.Button(root , text=handlerLine.replace("<answer>",""), command= lambda num = len(buttons): select(num),fg = "black")
         tmpButton.config(width = 100)
         tmpButton.pack(side=tk.TOP)
         buttons.append(tmpButton)
