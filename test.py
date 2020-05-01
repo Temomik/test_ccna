@@ -1,5 +1,6 @@
 import tkinter as tk
 from PIL import ImageTk, Image
+from random import randint
 
 def nextImage():
     global panel, it
@@ -58,14 +59,18 @@ def next(event):
     selectArray.clear()
     rightArray.clear()
     panel.pack_forget()
-    while(1):
+    
+    answersBuff = []
+
+    while 1:
         line = data.readline()
         if("<next>" in line):
-            return
+            break
         if("<question>" in line):
             questionsLabel.destroy()
-            questionsLabel = tk.Label(root, text=handleString(line.replace("<question>",""),100))
+            questionsLabel = tk.Label(root, text=handleString(line.replace("<question>",""),70))
             questionsLabel.pack(side=tk.TOP)
+            questionsLabel.config(font=("Consoles", 30))
             continue
         if("<image>" in line):
             panel.pack()
@@ -74,14 +79,21 @@ def next(event):
             panel.configure(image=img2)
             panel.image = img2
             continue
+        answersBuff.append(line)
+    while len(answersBuff) > 0:
+        num = randint(0,len(answersBuff) - 1)
         tmpButton = []
-        handlerLine = handleString(line.replace('\n',''))
-        if "<answer>" in line :
+        line = answersBuff[num]
+        if "<answer>" in line:
             rightArray.append(len(buttons))
-        tmpButton = tk.Button(root , text=handlerLine.replace("<answer>",""), command= lambda num = len(buttons): select(num),fg = "black")
+        handledLine = handleString(line.replace('\n',''))
+        tmpButton = tk.Button(root , text=handledLine.replace("<answer>",""), command= lambda buttonNum = len(buttons): select(buttonNum),fg = "black")
         tmpButton.config(width = 100)
+        tmpButton.config(font=("Consoles", 30))
         tmpButton.pack(side=tk.TOP)
         buttons.append(tmpButton)
+        answersBuff.remove(answersBuff[num])
+
 buttons = []
 data = open("questions.txt", "r")
 root = tk.Tk()
