@@ -10,40 +10,41 @@ def saveImageByUrl(url, filename):
     img = Image.open(BytesIO(response.content))
     img.save(filename)
 
-page = requests.get('https://www.ccna7.com/ccna1-v6-0/ccna1-v6-0-final-exam-answer-2017-100/')
+page = requests.get('https://itexamanswers.net/ccna-1-final-exam-answers-v5-1-v6-0-introduction-to-networks.html#ftoc-version-6-0')
 tree = html.fromstring(page.content)
-# print(tree.xpath('//li/text()'))
-questions = tree.xpath('//li//h3/text()');
-# [print(answers[i]) for i in range(len(answers))]
-# answers = tree.xpath('//li/text()');
-
-allText = tree.xpath('//img/@src|//li/text()|//li//h3/text()|//li//em/*/text()|//li//span[@style="color: #ff0000;"]/text()| //li//span[@style="color: #ff0000;"]//em/text()');
-questions = tree.xpath('//li//h3/text()');
-rightAnswers = tree.xpath('//li//span[@style="color: #ff0000;"]/text()| //li//span[@style="color: #ff0000;"]//em/text()');
-# [print(answers[i]) for i in range(len(answers))]
+allText = tree.xpath('//article//img[@alt=""]/@src|//article//strong//text()|//article//div[@class="message_box success"]//text()|//article//li//text()')
 f = open("questions.txt", "w+")
-# print(len(answers))
 firstQuestion = True
 questionsNum = 1
 for elem in allText:
     asciiElem = elem.encode("ascii", errors="ignore").decode()
-    if elem in questions:
+    if str(questionsNum) + ". " in elem:
         if not firstQuestion:
             f.write("<next>\n")
         else:
             firstQuestion = False
-        f.write("<question>" + str(questionsNum) + ". " + asciiElem + '\n')
         questionsNum += 1
+        f.write("<question>" + asciiElem.replace("*","") + '\n')
     else :
-        if elem in rightAnswers:
-            f.write("<answer>" + asciiElem + '\n')
-        else:
-            if "data:image/" not in elem:
-                if "http" in elem:
+        if not firstQuestion:
+            if "*" in elem and elem.find('*') == len(elem) - 1:
+                f.write("<answer>" + asciiElem.replace("*","") + '\n')
+            else:
+                isImage = True
+                imgTagStart = "http"
+                imageEceptionsTags = {".com"}
+                for exceptionsTag in imageEceptionsTags:
+                    if exceptionsTag in elem[(len(elem)-len(exceptionsTag)):]:
+                        isImage = False
+                if imgTagStart in elem[0:len(imgTagStart)] and isImage:
+                    print("_"+elem+"_")
                     fileName = "imgs/" + str(allText.index(elem)) + ".png"
                     saveImageByUrl(elem, fileName)
                     f.write("<image>" + fileName + '\n')
+                    continue
+                if "Explain:" in elem:
+                    f.write("<explain>")
                 else:
                     if len(elem) > 1:
-                        f.write(elem + '\n')
+                        f.write(elem.replace("\n","") + '\n')
             
