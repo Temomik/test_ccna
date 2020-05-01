@@ -17,10 +17,30 @@ def handleString(string,count = 40):
         outStr = outStr + str(it)
     return outStr
 
-def next():
-    global questionsLabel,buttons,root,panel
+selectArray = []
+rightArray = []
+def select(num):
+    # print(num)
+    if num in selectArray:
+        selectArray.remove(num)
+        buttons[num].config( fg = "black")
+    else:
+        selectArray.append(num)
+        buttons[num].config( fg = "red")
+
+def next(event):
+    global questionsLabel,buttons,root,panel,selectArray,rightArray
+    if len(selectArray) != len(rightArray):
+        return
+    for it in selectArray:
+        if it not in rightArray:
+            return
+
     [button.destroy() for button in buttons]
     # panel.destroy()
+    buttons.clear()
+    selectArray.clear()
+    rightArray.clear()
     panel.pack_forget()
     while(1):
         line = data.readline()
@@ -38,35 +58,34 @@ def next():
             panel.configure(image=img2)
             panel.image = img2
             continue
-        
         tmpButton = []
         newLine = handleString(line.replace('\n',''))
         if "<answer>" in line :
-            tmpButton = tk.Button(root , text=newLine, command=next)
-        else:
-            tmpButton = tk.Button(root, text=newLine)
-        tmpButton.config( width = 100)
+            rightArray.append(len(buttons))
+        tmpButton = tk.Button(root , text=newLine, command= lambda num = len(buttons): select(num),fg = "black")
+        tmpButton.config(width = 100)
         tmpButton.pack(side=tk.TOP)
         buttons.append(tmpButton)
 buttons = []
 data = open("questions.txt", "r")
 root = tk.Tk()
-
+root.bind('<Return>', next)
+root.bind('<space>', next)
 root.attributes("-fullscreen", True)
 
-img = ImageTk.PhotoImage(Image.open("imgs/75.png"))
+img = ImageTk.PhotoImage(Image.open("hello.jpg"))
 panel = tk.Label(root,image=img)
 panel.pack(side="bottom", fill="both", expand="yes")
 
 topSpace = tk.Label(root, text="\n\n\n")
 topSpace.pack(side=tk.TOP)
 
-questionsLabel = tk.Label(root, text="Hello, world!")
+questionsLabel = tk.Label(root, text="Press Enter to start")
 questionsLabel.pack(side=tk.TOP)
 
-startButton= tk.Button(root, text="start", command=next)
-startButton.pack(side=tk.TOP)
-buttons.append(startButton)
+# startButton= tk.Button(root, text="start")
+# startButton.pack(side=tk.TOP)
+# buttons.append(startButton)
 root.mainloop()
 
 

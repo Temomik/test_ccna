@@ -26,6 +26,7 @@ f = open("questions.txt", "w+")
 firstQuestion = True
 questionsNum = 1
 for elem in allText:
+    elem = elem.encode("ascii", errors="ignore").decode()
     if elem in questions:
         if not firstQuestion:
             f.write("<next>\n")
