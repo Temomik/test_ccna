@@ -63,7 +63,16 @@ def select(num):
 def skip(event):
     onRightAnwer()
 def onRightAnwer():
-    global questionsLabel,buttons,root,selectArray,rightArray,explainLabel,imagesTest,imageCount,isExplain,saveLine,isCurrentSaved,data
+    global questionsLabel,buttons,root,selectArray,rightArray,explainLabel,imagesTest,imageCount,isExplain,saveLine,isCurrentSaved,data,isFirstStart,startQuestionsNum
+    if isFirstStart:
+        isFirstStart = False
+        tmpBuff = startQuestionsNum.get()
+        firstNum = 0
+        try:
+            firstNum = int(tmpBuff.strip())
+        except:
+            pass    
+        startFrom(firstNum)
     [button.destroy() for button in buttons]
     [imagesTest[it].pack_forget() for it in range(imageCount)]
     # panel.destroy()
@@ -92,13 +101,13 @@ def onRightAnwer():
             continue
         if "<question>" in line:
             questionsLabel.destroy()
-            questionsLabel = tk.Label(root, text=handleString(line.replace("<question>",""),50))
+            questionsLabel = tk.Label(root, text=handleString(line.replace("<question>",""),70))
             questionsLabel.pack(side=tk.TOP)
             questionsLabel.config(font=("Consoles", 30))
             continue
         if "<image>" in line:
             imgResized = Image.open(line.replace("<image>","").replace("\n",""))
-            basewidth = 500
+            basewidth = 700
             wpercent = (basewidth/float(imgResized.size[0]))
             hsize = int((float(imgResized.size[1])*float(wpercent)))
             imgResized = imgResized.resize((basewidth,hsize), Image.ANTIALIAS)
@@ -161,7 +170,7 @@ def startFrom(num):
         return
     num -= 1
     tmpStr = str(num) + ". "
-    print(tmpStr)
+    # print(tmpStr)
     needToStop = False
     while 1:
         line = data.readline()
@@ -180,11 +189,11 @@ def openFile():
     except:
         pass
 
+isFirstStart = True
 root = tk.Tk()
 buttons = []
 imagesTest = []
 
-startFrom(0)
 data = []
 root.bind('<Return>', next)
 root.bind('<space>', next)
@@ -206,6 +215,9 @@ topSpace.pack(side=tk.TOP)
 questionsLabel = tk.Label(root, text=handleString("Open file and Press sapce or Enter to start",30))
 questionsLabel.pack(side=tk.TOP)
 
+startQuestionsNum = Entry(root)
+startQuestionsNum.pack(side="top")
+buttons.append(startQuestionsNum)
 openButtom  = tk.Button(root, text='Open File', command=openFile)
 openButtom.pack(side=tk.TOP)
 buttons.append(openButtom)
