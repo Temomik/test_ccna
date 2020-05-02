@@ -76,6 +76,9 @@ def onRightAnwer():
     answersText = ""
     while 1:
         line = data.readline()
+        if not line:
+            data.seek(0)
+            continue
         if "<next>" in line:
             break
         if isExplain or "<explain>" in line:
@@ -90,18 +93,15 @@ def onRightAnwer():
             continue
         if "<image>" in line:
             imgResized = Image.open(line.replace("<image>","").replace("\n",""))
-            # tmpImg = tk.Label(root,image=ImageTk.PhotoImage(imgResized))
-            # tmpImg.pack(side="bottom", fill="both", expand="yes")
+            basewidth = 700
+            wpercent = (basewidth/float(imgResized.size[0]))
+            hsize = int((float(imgResized.size[1])*float(wpercent)))
+            imgResized = imgResized.resize((basewidth,hsize), Image.ANTIALIAS)
             imagesTest[imageCount].pack()
-            image = Image.open(line.replace("<image>","").replace("\n",""))
-            img2 = ImageTk.PhotoImage(image)
+            img2 = ImageTk.PhotoImage(imgResized)
             imagesTest[imageCount].configure(image=img2)
             imagesTest[imageCount].image = img2
             imageCount += 1
-            # img = ImageTk.PhotoImage(Image.open("hello.jpg"))
-            # panel = tk.Label(root,image=img)
-            # panel.pack(side="bottom", fill="both", expand="yes")
-            # imagesTest.append(tmpImg)
             continue
         answersBuff.append(line)
     while len(answersBuff) > 0:
@@ -156,11 +156,4 @@ questionsLabel = tk.Label(root, text="Press Enter to start")
 questionsLabel.pack(side=tk.TOP)
 explainLabel = tk.Label(root,text="")
 explainLabel.pack(side=tk.TOP)
-# startButton= tk.Button(root, text="start")
-# startButton.pack(side=tk.TOP)
-# buttons.append(startButton)
 root.mainloop()
-
-
-# data = open("questions.txt", "r")
-# [print(data.readline()) for i in range(3)]
