@@ -157,7 +157,7 @@ root = tk.Tk()
 buttons = []
 imagesTest = []
 
-data = open("questions.txt", "r")
+data = open("questions.txt", "r",encoding="utf-8")
 startFrom(0)
 
 root.bind('<Return>', next)
