@@ -27,7 +27,7 @@ for elem in allText:
         f.write("<question>" + asciiElem.replace("*","") + '\n')
     else :
         if not firstQuestion:
-            if "*" in elem and elem.find('*') == len(elem) - 1:
+            if "*" in elem and elem.find('*') == len(elem) - 1 and len(elem) > 1 :
                 f.write("<answer>" + asciiElem.replace("*","") + '\n')
             else:
                 isImage = True
