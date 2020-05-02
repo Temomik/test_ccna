@@ -13,7 +13,7 @@ def saveImageByUrl(url, filename):
 page = requests.get('https://itexamanswers.net/ccna-1-final-exam-answers-v5-1-v6-0-introduction-to-networks.html#ftoc-version-6-0')
 tree = html.fromstring(page.content)
 allText = tree.xpath('//article//img[@alt=""]/@src|//article//strong//text()|//article//div[@class="message_box success"]//text()|//article//li//text()')
-f = open("questions.txt", "w+")
+f = open("questions.txt", "w+", encoding="utf-8")
 firstQuestion = True
 questionsNum = 1
 for elem in allText:

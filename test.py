@@ -134,10 +134,32 @@ def next(event):
             return
     onRightAnwer()
 
+def startFrom(num):
+    global data
+    if num == 0:
+        return
+    num -= 1
+    tmpStr = str(num) + ". "
+    print(tmpStr)
+    needToStop = False
+    while 1:
+        line = data.readline()
+        if not line:
+            data.seek(0)
+            return
+        if needToStop  and "<next>" in line:
+            return
+        if tmpStr in line :
+            needToStop = True
+
+
 root = tk.Tk()
 buttons = []
 imagesTest = []
+
 data = open("questions.txt", "r")
+startFrom(0)
+
 root.bind('<Return>', next)
 root.bind('<space>', next)
 root.bind('e',showExplain)
