@@ -2,6 +2,9 @@ from tkinter import *
 import tkinter as tk
 from PIL import ImageTk, Image
 from random import randint
+from datetime import datetime
+import os
+from tkinter import filedialog as fd 
 
 def hideAll():
     global questionsLabel,buttons,imageCount,imagesTest
@@ -50,7 +53,6 @@ rightArray = []
 
 
 def select(num):
-    # print(num)
     if num in selectArray:
         selectArray.remove(num)
         buttons[num].config( fg = "black")
@@ -58,10 +60,10 @@ def select(num):
         selectArray.append(num)
         buttons[num].config( fg = "red")
 
-def skip(ecent):
+def skip(event):
     onRightAnwer()
 def onRightAnwer():
-    global questionsLabel,buttons,root,selectArray,rightArray,explainLabel,imagesTest,imageCount
+    global questionsLabel,buttons,root,selectArray,rightArray,explainLabel,imagesTest,imageCount,isExplain,saveLine,isCurrentSaved,data
     [button.destroy() for button in buttons]
     [imagesTest[it].pack_forget() for it in range(imageCount)]
     # panel.destroy()
@@ -71,14 +73,17 @@ def onRightAnwer():
     rightArray.clear()
 
     answersBuff = []
+    isCurrentSaved = False
     isExplain = False
     explainText = ""
     answersText = ""
+    saveLine = ""
     while 1:
         line = data.readline()
         if not line:
             data.seek(0)
             continue
+        saveLine += str(line)
         if "<next>" in line:
             break
         if isExplain or "<explain>" in line:
@@ -87,13 +92,13 @@ def onRightAnwer():
             continue
         if "<question>" in line:
             questionsLabel.destroy()
-            questionsLabel = tk.Label(root, text=handleString(line.replace("<question>",""),70))
+            questionsLabel = tk.Label(root, text=handleString(line.replace("<question>",""),50))
             questionsLabel.pack(side=tk.TOP)
             questionsLabel.config(font=("Consoles", 30))
             continue
         if "<image>" in line:
             imgResized = Image.open(line.replace("<image>","").replace("\n",""))
-            basewidth = 700
+            basewidth = 500
             wpercent = (basewidth/float(imgResized.size[0]))
             hsize = int((float(imgResized.size[1])*float(wpercent)))
             imgResized = imgResized.resize((basewidth,hsize), Image.ANTIALIAS)
@@ -125,6 +130,22 @@ def onRightAnwer():
     explainLabel.config(font=("Consoles", 30))
     explainLabel.pack_forget()
 
+saveFile = []
+isCreatedSaveFile = False
+isCurrentSaved = False
+savedFilename = ""
+saveLine = ""
+def saveCurrentQuestions(event):
+    global saveLine,isCreatedSaveFile,isCurrentSaved,savedFilename
+    if not isCreatedSaveFile:
+        savedFilename = "saves/" + str(datetime.now()).replace(" ", "_") + ".txt"
+        open(savedFilename, "w+",encoding="utf-8")
+        isCreatedSaveFile = True
+    if not isCurrentSaved and isCreatedSaveFile:
+        saveFile = open(savedFilename, "a",encoding="utf-8")
+        isCurrentSaved = True
+        saveFile.write(str(saveLine))
+
 def next(event):
     global selectArray,rightArray
     if len(selectArray) != len(rightArray):
@@ -152,20 +173,28 @@ def startFrom(num):
         if tmpStr in line :
             needToStop = True
 
+def openFile():
+    global data,root
+    try:
+        data = open(fd.askopenfilename() , "r",encoding="utf-8")
+    except:
+        pass
 
 root = tk.Tk()
 buttons = []
 imagesTest = []
 
-data = open("questions.txt", "r",encoding="utf-8")
 startFrom(0)
-
+data = []
 root.bind('<Return>', next)
 root.bind('<space>', next)
 root.bind('e',showExplain)
 root.bind('s',skip)
+root.bind('w',saveCurrentQuestions)
 root.attributes("-fullscreen", True)
+data = open("questions.txt" , "r",encoding="utf-8")
 
+os.system("mkdir -p saves")
 img = ImageTk.PhotoImage(Image.open("hello.jpg"))
 for i in range(5):
     imagesTest.append(tk.Label(root,image=img))
@@ -174,8 +203,13 @@ imageCount = 1;
 topSpace = tk.Label(root, text="\n")
 topSpace.pack(side=tk.TOP)
 
-questionsLabel = tk.Label(root, text="Press Enter to start")
+questionsLabel = tk.Label(root, text=handleString("Open file and Press sapce or Enter to start",30))
 questionsLabel.pack(side=tk.TOP)
+
+openButtom  = tk.Button(root, text='Open File', command=openFile)
+openButtom.pack(side=tk.TOP)
+buttons.append(openButtom)
+
 explainLabel = tk.Label(root,text="")
 explainLabel.pack(side=tk.TOP)
 root.mainloop()

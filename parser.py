@@ -4,12 +4,14 @@ import requests
 from PIL import Image
 import requests
 from io import BytesIO
+import os
 
 def saveImageByUrl(url, filename):
     response = requests.get(url)
     img = Image.open(BytesIO(response.content))
     img.save(filename)
 
+os.system("mkdir -p imgs")
 page = requests.get('https://itexamanswers.net/ccna-1-final-exam-answers-v5-1-v6-0-introduction-to-networks.html#ftoc-version-6-0')
 tree = html.fromstring(page.content)
 allText = tree.xpath('//article//img[@alt=""]/@src|//article//strong//text()|//article//div[@class="message_box success"]//text()|//article//li//text()')
