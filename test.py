@@ -65,20 +65,29 @@ def select(num):
         buttons[num].config( fg = "red")
 
 def skip(event):
+    global isNeedToFillStack
+    isNeedToFillStack = True
     onRightAnwer()
 
-currentQuestions = 0
+currentQuestions = []
+isNeedToFillStack = True
 def returnPrev(event):
-    global data,currentQuestions
+    global data,currentQuestions,isNeedToFillStack
     data.seek(0)
-    startFrom(currentQuestions-1)
+    if len(currentQuestions) > 1:
+        startFrom(currentQuestions[-2])
+        currentQuestions = currentQuestions[:-1]
+    else:
+        currentQuestions = []
+    isNeedToFillStack = False
     onRightAnwer()
 
+lastQuestions = 0
 def onRightAnwer():
     global questionsLabel,buttons,root,selectArray,rightArray,explainLabel
     global imagesTest,imageCount,isExplain,saveLine
     global isCurrentSaved,data,isFirstStart,startQuestionsNum
-    global currentQuestions,basewidth
+    global currentQuestions,basewidth,lastQuestions
     if isFirstStart:
         isFirstStart = False
         tmpBuff = startQuestionsNum.get()
@@ -87,7 +96,11 @@ def onRightAnwer():
             firstNum = int(tmpBuff.strip())
         except:
             pass    
-        startFrom(firstNum)
+        startFrom(firstNum-1)
+    else:
+        if isNeedToFillStack:
+            currentQuestions.append(lastQuestions)
+
     [button.destroy() for button in buttons]
     [imagesTest[it].pack_forget() for it in range(imageCount)]
     # panel.destroy()
@@ -117,7 +130,7 @@ def onRightAnwer():
         if "<question>" in line:
             questionsLabel.destroy()
             try:
-                currentQuestions = int(line.replace("<question>","").split(".")[0])
+                lastQuestions = int(line.replace("<question>","").split(".")[0].replace(" ",""))
             except:
                 pass
             questionsLabel = tk.Label(root, text=handleString(line.replace("<question>",""),lineBreak))
@@ -165,7 +178,7 @@ saveLine = ""
 def saveCurrentQuestions(event):
     global saveLine,isCreatedSaveFile,isCurrentSaved,savedFilename
     if not isCreatedSaveFile:
-        savedFilename = "saves/" + str(datetime.now()).replace(" ", "_") + ".txt"
+        savedFilename = os.path.join("saves",str(datetime.now()).replace(" ", "_") + ".txt")
         open(savedFilename, "w+",encoding="utf-8")
         isCreatedSaveFile = True
     if not isCurrentSaved and isCreatedSaveFile:
@@ -174,21 +187,22 @@ def saveCurrentQuestions(event):
         saveFile.write(str(saveLine))
 
 def next(event):
-    global selectArray,rightArray
+    global selectArray,rightArray,isNeedToFillStack
     if len(selectArray) != len(rightArray):
         return
     for it in selectArray:
         if it not in rightArray:
             return
+    isNeedToFillStack = True
     onRightAnwer()
 
 def startFrom(num):
     global data
-    if num <= 1:
+    if num <= 0:
         return
-    num -= 1
-    tmpStr = str(num) + ". "
-    # print(tmpStr)
+    # num -= 1
+    # tmpStr = str(num) + ". "
+    # print("_" + tmpStr+ " ")
     needToStop = False
     while 1:
         line = data.readline()
@@ -197,8 +211,11 @@ def startFrom(num):
             return
         if needToStop  and "<next>" in line:
             return
-        if tmpStr in line :
-            needToStop = True
+        if "<question>" in line:
+            # print(line)
+            # print("_",line.replace("<question>","").split("."),"_")
+            if num == int(line.replace("<question>","").split(".")[0].replace(" ","")):
+                needToStop = True
 
 def openFile():
     global data,root
