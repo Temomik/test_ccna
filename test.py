@@ -62,8 +62,19 @@ def select(num):
 
 def skip(event):
     onRightAnwer()
+
+currentQuestions = 0
+def returnPrev(event):
+    global data,currentQuestions
+    data.seek(0)
+    startFrom(currentQuestions-1)
+    onRightAnwer()
+
 def onRightAnwer():
-    global questionsLabel,buttons,root,selectArray,rightArray,explainLabel,imagesTest,imageCount,isExplain,saveLine,isCurrentSaved,data,isFirstStart,startQuestionsNum
+    global questionsLabel,buttons,root,selectArray,rightArray,explainLabel
+    global imagesTest,imageCount,isExplain,saveLine
+    global isCurrentSaved,data,isFirstStart,startQuestionsNum
+    global currentQuestions
     if isFirstStart:
         isFirstStart = False
         tmpBuff = startQuestionsNum.get()
@@ -101,6 +112,10 @@ def onRightAnwer():
             continue
         if "<question>" in line:
             questionsLabel.destroy()
+            try:
+                currentQuestions = int(line.replace("<question>","").split(".")[0])
+            except:
+                pass
             questionsLabel = tk.Label(root, text=handleString(line.replace("<question>",""),70))
             questionsLabel.pack(side=tk.TOP)
             questionsLabel.config(font=("Consoles", 30))
@@ -166,7 +181,7 @@ def next(event):
 
 def startFrom(num):
     global data
-    if num == 0:
+    if num <= 1:
         return
     num -= 1
     tmpStr = str(num) + ". "
@@ -199,6 +214,7 @@ root.bind('<Return>', next)
 root.bind('<space>', next)
 root.bind('e',showExplain)
 root.bind('s',skip)
+root.bind('a',returnPrev)
 root.bind('w',saveCurrentQuestions)
 root.attributes("-fullscreen", True)
 data = open("questions.txt" , "r",encoding="utf-8")
