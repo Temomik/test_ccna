@@ -6,6 +6,10 @@ from datetime import datetime
 import os
 from tkinter import filedialog as fd 
 
+basewidth = 500   #image scale
+lineBreak = 70
+fontSize = 25
+
 def hideAll():
     global questionsLabel,buttons,imageCount,imagesTest
     for i in buttons:
@@ -74,7 +78,7 @@ def onRightAnwer():
     global questionsLabel,buttons,root,selectArray,rightArray,explainLabel
     global imagesTest,imageCount,isExplain,saveLine
     global isCurrentSaved,data,isFirstStart,startQuestionsNum
-    global currentQuestions
+    global currentQuestions,basewidth
     if isFirstStart:
         isFirstStart = False
         tmpBuff = startQuestionsNum.get()
@@ -116,13 +120,12 @@ def onRightAnwer():
                 currentQuestions = int(line.replace("<question>","").split(".")[0])
             except:
                 pass
-            questionsLabel = tk.Label(root, text=handleString(line.replace("<question>",""),70))
+            questionsLabel = tk.Label(root, text=handleString(line.replace("<question>",""),lineBreak))
             questionsLabel.pack(side=tk.TOP)
-            questionsLabel.config(font=("Consoles", 30))
+            questionsLabel.config(font=("Consoles", fontSize))
             continue
         if "<image>" in line:
             imgResized = Image.open(line.replace("<image>","").replace("\n",""))
-            basewidth = 700
             wpercent = (basewidth/float(imgResized.size[0]))
             hsize = int((float(imgResized.size[1])*float(wpercent)))
             imgResized = imgResized.resize((basewidth,hsize), Image.ANTIALIAS)
@@ -140,18 +143,18 @@ def onRightAnwer():
         if "<answer>" in line:
             rightArray.append(len(buttons))
             answersText += line + "\n"
-        handledLine = handleString(line.replace('\n','').replace("<answer>",""))
+        handledLine = handleString(line.replace('\n','').replace("<answer>",""),lineBreak)
         tmpButton = tk.Button(root , text=handledLine, command= lambda buttonNum = len(buttons): select(buttonNum),fg = "black")
         tmpButton.config(width = 100)
-        tmpButton.config(font=("Consoles", 30))
+        tmpButton.config(font=("Consoles", fontSize))
         tmpButton.pack(side=tk.TOP)
         buttons.append(tmpButton)
         answersBuff.remove(answersBuff[num])
 
     explainLabel.destroy()
-    explainLabel = tk.Label(root, text= "Explain\n " + handleString(explainText.replace("\n","") + "\n\n\n" + answersText,70))
+    explainLabel = tk.Label(root, text= "Explain\n " + handleString(explainText.replace("\n","") + "\n\n\n" + answersText,lineBreak))
     explainLabel.pack(side=tk.TOP)
-    explainLabel.config(font=("Consoles", 30))
+    explainLabel.config(font=("Consoles", fontSize))
     explainLabel.pack_forget()
 
 saveFile = []
@@ -228,7 +231,7 @@ imageCount = 1;
 topSpace = tk.Label(root, text="\n")
 topSpace.pack(side=tk.TOP)
 
-questionsLabel = tk.Label(root, text=handleString("Open file and Press sapce or Enter to start",30))
+questionsLabel = tk.Label(root, text=handleString("Open file and Press sapce or Enter to start",lineBreak))
 questionsLabel.pack(side=tk.TOP)
 
 startQuestionsNum = Entry(root)
