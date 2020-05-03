@@ -10,8 +10,10 @@ use mouse to select answers,
 
 's' to skip qusetions, 
 
-'e' to get explain
+'s' to return previous qusetions, 
 
-'w' to save current questions in save file
+'e' to get explain,
 
-work only with english language
+'w' to save current questions in save file,
+
+work only with litteral english keyboard layout
